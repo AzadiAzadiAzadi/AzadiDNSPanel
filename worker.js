@@ -38,6 +38,13 @@ async function handleRequest(request) {
     } catch (error) {
       return new Response('Failed to save DNS over HTTPS Address', { status: 500 })
     }
+  } else if (url.pathname === '/reset-doh-address' && request.method === 'POST') {
+    try {
+      await SETTINGS.put('dohaddress', 'https://cloudflare-dns.com/dns-query')
+      return new Response('DNS over HTTPS Address reset to default!', { status: 200 })
+    } catch (error) {
+      return new Response('Failed to reset DNS over HTTPS Address', { status: 500 })
+    }
   } else if (url.pathname === '/') {
     const currentdohaddress = await getdohaddress()
     const origin = `${url.protocol}//${url.host}`
@@ -155,11 +162,12 @@ const html = `
       <label for="dohaddress">DNS over HTTPS Address:</label>
       <input type="text" id="dohaddress" name="dohaddress" value="{{dohaddress}}" required>
       <button type="submit">Save</button>
+      <button type="button" id="resetButton">Reset to Default</button>
     </form>
     <label for="azadidoh">Azadi DoH:</label>
     <input type="text" id="azadidoh" name="azadidoh" value="{{origin}}/dns-query" readonly>
     <button id="copyEndpoint">Copy</button>
-    <div class="version">Version 0.0.3</div>
+    <div class="version">Version 0.0.4</div>
   </div>
 
   <script>
@@ -186,6 +194,19 @@ const html = `
       azadidoh.select()
       document.execCommand('copy')
       alert('Azadi DoH copied to clipboard!')
+    })
+
+    document.getElementById('resetButton').addEventListener('click', async () => {
+      const response = await fetch('/reset-doh-address', {
+        method: 'POST',
+      })
+
+      if (response.ok) {
+        alert('DNS over HTTPS Address reset to default!')
+        document.getElementById('dohaddress').value = 'https://cloudflare-dns.com/dns-query'
+      } else {
+        alert('Failed to reset DNS over HTTPS Address')
+      }
     })
   </script>
 </body>
