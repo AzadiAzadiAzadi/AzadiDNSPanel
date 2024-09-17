@@ -15,9 +15,9 @@ async function handleRequest(request) {
   }
 
   if (url.pathname === '/dns-query') {
-    const dohAddress = await getDohAddress()
+    const dohaddress = await getdohaddress()
     const dnsQuery = await request.text()
-    const dnsResponse = await fetch(dohAddress, {
+    const dnsResponse = await fetch(dohaddress, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/dns-message',
@@ -32,16 +32,16 @@ async function handleRequest(request) {
     })
   } else if (url.pathname === '/set-doh-address' && request.method === 'POST') {
     try {
-      const { dohAddress } = await request.json()
-      await SETTINGS.put('dohAddress', dohAddress)
-      return new Response('DoH DNS address saved!', { status: 200 })
+      const { dohaddress } = await request.json()
+      await SETTINGS.put('dohaddress', dohaddress)
+      return new Response('DNS over HTTPS Address saved!', { status: 200 })
     } catch (error) {
-      return new Response('Failed to save DoH DNS address', { status: 500 })
+      return new Response('Failed to save DNS over HTTPS Address', { status: 500 })
     }
   } else if (url.pathname === '/') {
-    const currentDohAddress = await getDohAddress()
+    const currentdohaddress = await getdohaddress()
     const origin = `${url.protocol}//${url.host}`
-    const htmlContent = html.replace('{{dohAddress}}', currentDohAddress).replace('{{origin}}', origin)
+    const htmlContent = html.replace('{{dohaddress}}', currentdohaddress).replace('{{origin}}', origin)
     return new Response(htmlContent, {
       headers: {
         'Content-Type': 'text/html',
@@ -52,10 +52,10 @@ async function handleRequest(request) {
   }
 }
 
-async function getDohAddress() {
+async function getdohaddress() {
   try {
-    const dohAddress = await SETTINGS.get('dohAddress')
-    return dohAddress || 'https://cloudflare-dns.com/dns-query'
+    const dohaddress = await SETTINGS.get('dohaddress')
+    return dohaddress || 'https://cloudflare-dns.com/dns-query'
   } catch (error) {
     return 'https://cloudflare-dns.com/dns-query'
   }
@@ -152,40 +152,40 @@ const html = `
   <div class="container">
     <h1>Azadi DNS Panel</h1>
     <form id="dohForm">
-      <label for="dohAddress">DoH DNS Address:</label>
-      <input type="text" id="dohAddress" name="dohAddress" value="{{dohAddress}}" required>
+      <label for="dohaddress">DNS over HTTPS Address:</label>
+      <input type="text" id="dohaddress" name="dohaddress" value="{{dohaddress}}" required>
       <button type="submit">Save</button>
     </form>
-    <label for="dohEndpoint">DoH DNS Endpoint:</label>
-    <input type="text" id="dohEndpoint" name="dohEndpoint" value="{{origin}}/dns-query" readonly>
+    <label for="azadidoh">Azadi DoH:</label>
+    <input type="text" id="azadidoh" name="azadidoh" value="{{origin}}/dns-query" readonly>
     <button id="copyEndpoint">Copy</button>
-    <div class="version">Version 0.0.2</div>
+    <div class="version">Version 0.0.3</div>
   </div>
 
   <script>
     document.getElementById('dohForm').addEventListener('submit', async (event) => {
       event.preventDefault()
-      const dohAddress = document.getElementById('dohAddress').value
+      const dohaddress = document.getElementById('dohaddress').value
       const response = await fetch('/set-doh-address', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ dohAddress }),
+        body: JSON.stringify({ dohaddress }),
       })
 
       if (response.ok) {
-        alert('DoH DNS address saved!')
+        alert('DNS over HTTPS Address saved!')
       } else {
-        alert('Failed to save DoH DNS address')
+        alert('Failed to save DNS over HTTPS Address')
       }
     })
 
     document.getElementById('copyEndpoint').addEventListener('click', () => {
-      const dohEndpoint = document.getElementById('dohEndpoint')
-      dohEndpoint.select()
+      const azadidoh = document.getElementById('azadidoh')
+      azadidoh.select()
       document.execCommand('copy')
-      alert('DoH DNS Endpoint copied to clipboard!')
+      alert('Azadi DoH copied to clipboard!')
     })
   </script>
 </body>
