@@ -5,7 +5,7 @@ addEventListener('fetch', event => {
 async function handleRequest(request) {
   const url = new URL(request.url)
 
-  if (!SETTINGS) {
+  if (typeof SETTINGS !== 'object') {
     return new Response(errorHtml, {
       headers: {
         'Content-Type': 'text/html',
@@ -159,7 +159,7 @@ const html = `
     <label for="dohEndpoint">DoH DNS Endpoint:</label>
     <input type="text" id="dohEndpoint" name="dohEndpoint" value="{{origin}}/dns-query" readonly>
     <button id="copyEndpoint">Copy</button>
-    <div class="version">Version 0.0.1</div>
+    <div class="version">Version 0.0.2</div>
   </div>
 
   <script>
